@@ -26,9 +26,13 @@ APPLICATION_NAME = "Item Catalog Application"
 engine = create_engine('sqlite:////var/www/html/itemcatalog/itemcatalog.db')
 Base.metadata.bind = engine
 
-DBSession = scoped_session(sessionmaker(bind=engine))
-session = DBSession()
+session_factory = sessionmaker(bind=engine)
+scopedSession = scoped_session(session_factory)
+session = scopedSession
 
+@app.teardown_request
+def remove_session(ex=None):
+    scopedSession.remove()
 
 # Function implementing CSRF
 def checkTokenState():
